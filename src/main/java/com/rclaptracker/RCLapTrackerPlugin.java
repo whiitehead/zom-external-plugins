@@ -24,7 +24,7 @@ import net.runelite.api.events.AnimationChanged;
 
 @Slf4j
 @PluginDescriptor(
-	name = "ZMI Cycle Tracker"
+	name = "RC Lap Tracker"
 )
 public class RCLapTrackerPlugin extends Plugin
 {
@@ -92,7 +92,7 @@ public class RCLapTrackerPlugin extends Plugin
 	private void updateInfoBox()
 	{
 		removeInfobox();
-		final BufferedImage image = itemManager.getImage(ItemID.ELDER_CHAOS_HOOD, 1, false);
+		final BufferedImage image = itemManager.getImage(ItemID.WRATH_RUNE, 1, false);
 		counterBox = new Counter(image, this, cycle);
 		infoBoxManager.addInfoBox(counterBox);
 	}
