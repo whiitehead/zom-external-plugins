@@ -1,13 +1,13 @@
-package com.zmicycletracker;
+package com.rclaptracker;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class ZMICycleTrackerTest
+public class RCLapTrackerTest
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(ZMICycleTrackerPlugin.class);
+		ExternalPluginManager.loadBuiltin(RCLapTrackerPlugin.class);
 		RuneLite.main(args);
 	}
 }

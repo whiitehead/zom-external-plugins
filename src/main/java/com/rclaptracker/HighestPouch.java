@@ -1,4 +1,4 @@
-package com.zmicycletracker;
+package com.rclaptracker;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

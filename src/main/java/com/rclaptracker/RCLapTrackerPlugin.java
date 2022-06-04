@@ -1,10 +1,11 @@
-package com.zmicycletracker;
+package com.rclaptracker;
 
 import javax.inject.Inject;
 
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
@@ -25,7 +26,7 @@ import net.runelite.api.events.AnimationChanged;
 @PluginDescriptor(
 	name = "ZMI Cycle Tracker"
 )
-public class ZMICycleTrackerPlugin extends Plugin
+public class RCLapTrackerPlugin extends Plugin
 {
 	@Inject
 	private Client client;
@@ -36,14 +37,14 @@ public class ZMICycleTrackerPlugin extends Plugin
 	@Inject
 	private InfoBoxManager infoBoxManager;
 	@Inject
-	private ZMICycleTrackerConfig config;
+	private RCLapTrackerConfig config;
 	@Inject
 	private ItemManager itemManager;
 
 	@Provides
-	ZMICycleTrackerConfig getConfig(ConfigManager configManager)
+	RCLapTrackerConfig getConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(ZMICycleTrackerConfig.class);
+		return configManager.getConfig(RCLapTrackerConfig.class);
 	}
 
 	private Counter counterBox = null;
@@ -55,7 +56,7 @@ public class ZMICycleTrackerPlugin extends Plugin
 
 	private static final int SPELL_CONTACT_ANIMATION_ID = 4413;
 	private static final int CRAFT_RUNES_ANIMATION_ID = 791;
-	private static final int LADDER_DOWN_ANIMATION_ID = 827;
+
 	@Override
 	protected void startUp(){
 		target = config.highestPouch().getTarget();
@@ -125,7 +126,15 @@ public class ZMICycleTrackerPlugin extends Plugin
 			}
 			updateInfoBox();
 		}
-		else if (animId == LADDER_DOWN_ANIMATION_ID) {
+	}
+
+	@Subscribe
+	public void onItemContainerChanged(ItemContainerChanged event)
+	{
+		int containerId = event.getContainerId();
+
+		if (containerId == InventoryID.BANK.getId())
+		{
 			hasCrafted = false;
 		}
 	}
