@@ -1,17 +1,21 @@
-package com.rclaptracker;
+package com.rc_lap_tracker;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("zmicycletracker")
+@ConfigGroup(RCLapTrackerConfig.GROUP_NAME)
 public interface RCLapTrackerConfig extends Config
 {
+	String GROUP_NAME = "rc-lap-tracker";
+	String CYCLE_KEY = "cycle";
+	String HASCRAFTED_KEY = "hascrafted";
+	String ISMIDRUN_KEY = "ismidrun";
 	@ConfigItem(
 			keyName = "highestPouch",
 			name = "Highest Pouch",
 			description = "Configures the counter reset value to match the highest pouch in use",
-			position = 1
+			position = 2
 	)
 	default HighestPouch highestPouch()
 	{

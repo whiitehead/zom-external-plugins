@@ -1,4 +1,4 @@
-package com.rclaptracker;
+package com.rc_lap_tracker;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;

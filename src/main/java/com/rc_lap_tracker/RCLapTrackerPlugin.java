@@ -1,4 +1,4 @@
-package com.rclaptracker;
+package com.rc_lap_tracker;
 
 import javax.inject.Inject;
 
@@ -37,6 +37,8 @@ public class RCLapTrackerPlugin extends Plugin
 	@Inject
 	private InfoBoxManager infoBoxManager;
 	@Inject
+	private ConfigManager configManager;
+	@Inject
 	private RCLapTrackerConfig config;
 	@Inject
 	private ItemManager itemManager;
@@ -51,16 +53,36 @@ public class RCLapTrackerPlugin extends Plugin
 
 	private int target;
 	private int cycle;
-	private boolean hasCrafted = false;
-	private boolean isMidRun = false;
+	private boolean hasCrafted;
+	private boolean isMidRun;
 
 	private static final int SPELL_CONTACT_ANIMATION_ID = 4413;
 	private static final int CRAFT_RUNES_ANIMATION_ID = 791;
 
+	private int getIntConfig(String key){
+		Integer value = configManager.getRSProfileConfiguration(RCLapTrackerConfig.GROUP_NAME, key, int.class);
+		return value == null ? -1 : value;
+	}
+
+	private boolean getBooleanConfig(String key){
+		Boolean value = configManager.getRSProfileConfiguration(RCLapTrackerConfig.GROUP_NAME, key, boolean.class);
+		return value != null && value;
+	}
+
+	private void setConfig(String key, Object value){
+		configManager.setRSProfileConfiguration(RCLapTrackerConfig.GROUP_NAME, key, value);
+	}
+
 	@Override
 	protected void startUp(){
 		target = config.highestPouch().getTarget();
-		cycle = target;
+		cycle = getIntConfig(RCLapTrackerConfig.CYCLE_KEY);
+		if (cycle == -1)
+			cycle = target;
+
+		hasCrafted = getBooleanConfig(RCLapTrackerConfig.HASCRAFTED_KEY);
+		isMidRun = getBooleanConfig(RCLapTrackerConfig.ISMIDRUN_KEY);
+
 		updateInfoBox();
 	}
 
@@ -77,6 +99,10 @@ public class RCLapTrackerPlugin extends Plugin
 	@Override
 	protected void shutDown() throws Exception
 	{
+		setConfig(RCLapTrackerConfig.CYCLE_KEY, cycle);
+		setConfig(RCLapTrackerConfig.HASCRAFTED_KEY, hasCrafted);
+		setConfig(RCLapTrackerConfig.ISMIDRUN_KEY, isMidRun);
+
 		infoBoxManager.removeInfoBox(counterBox);
 		counterBox = null;
 	}

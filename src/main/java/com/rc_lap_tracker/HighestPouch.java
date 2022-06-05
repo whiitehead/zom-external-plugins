@@ -1,4 +1,4 @@
-package com.rclaptracker;
+package com.rc_lap_tracker;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
