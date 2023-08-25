@@ -5,11 +5,13 @@ import javax.inject.Inject;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.task.Schedule;
 import net.runelite.client.ui.overlay.infobox.Counter;
 import net.runelite.client.config.ConfigManager;
 
@@ -24,7 +26,9 @@ import net.runelite.api.events.AnimationChanged;
 
 @Slf4j
 @PluginDescriptor(
-		name = "RC Lap Tracker"
+		name = "Runecraft Lap Tracker",
+		description = "Shows you how many laps until your largest pouch degrades",
+		tags = {"runecraft", "rune", "lap", "tracker", "pouch", "essence", "zmi"}
 )
 public class RCLapTrackerPlugin extends Plugin
 {
@@ -48,14 +52,15 @@ public class RCLapTrackerPlugin extends Plugin
 	{
 		return configManager.getConfig(RCLapTrackerConfig.class);
 	}
-
 	private jwowWriteableCounter counterBox;
 
+	private long lastAction;
 	private int target;
 	private int cycle;
 	private boolean hasCrafted;
 	private boolean isMidRun;
 
+	private boolean isActive;
 	private static final int SPELL_CONTACT_ANIMATION_ID = 4413;
 	private static final int CRAFT_RUNES_ANIMATION_ID = 791;
 
@@ -83,15 +88,30 @@ public class RCLapTrackerPlugin extends Plugin
 		hasCrafted = getBooleanConfig(RCLapTrackerConfig.HASCRAFTED_KEY);
 		isMidRun = getBooleanConfig(RCLapTrackerConfig.ISMIDRUN_KEY);
 		counterBox = null;
+		lastAction = System.currentTimeMillis();
 
 		updateInfoBox();
+	}
+	@Subscribe
+	public void onGameTick(GameTick event)
+	{
+		boolean wasActive = isActive;
+
+		if (System.currentTimeMillis() - lastAction < 300000)
+			isActive = true;
+		else
+			isActive = false;
+
+		if (wasActive != isActive)
+			updateInfoBox();
 	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged ev)
 	{
+		int oldTarget = target;
 		target = config.highestPouch().getTarget();
-		if (!isMidRun) {
+		if (oldTarget != target && !isMidRun) {
 			cycle = target;
 			updateInfoBox();
 		}
@@ -117,6 +137,12 @@ public class RCLapTrackerPlugin extends Plugin
 
 	private void updateInfoBox()
 	{
+		if (!isActive)
+		{
+			removeInfobox();
+			return;
+		}
+
 		if (counterBox == null)
 		{
 			final BufferedImage image = itemManager.getImage(ItemID.WRATH_RUNE, 1, false);
@@ -146,11 +172,13 @@ public class RCLapTrackerPlugin extends Plugin
 		if (animId == SPELL_CONTACT_ANIMATION_ID) {
 			cycle = target;
 			isMidRun = false;
+			lastAction = System.currentTimeMillis();
 			updateInfoBox();
 		}
 		else if (!hasCrafted && animId == CRAFT_RUNES_ANIMATION_ID) {
 			hasCrafted = true;
 			isMidRun = true;
+			lastAction = System.currentTimeMillis();
 			if (cycle > 0) {
 				cycle--;
 			}
