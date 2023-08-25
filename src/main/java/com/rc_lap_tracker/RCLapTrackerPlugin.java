@@ -24,7 +24,7 @@ import net.runelite.api.events.AnimationChanged;
 
 @Slf4j
 @PluginDescriptor(
-	name = "RC Lap Tracker"
+		name = "RC Lap Tracker"
 )
 public class RCLapTrackerPlugin extends Plugin
 {
@@ -49,7 +49,7 @@ public class RCLapTrackerPlugin extends Plugin
 		return configManager.getConfig(RCLapTrackerConfig.class);
 	}
 
-	private Counter counterBox = null;
+	private jwowWriteableCounter counterBox;
 
 	private int target;
 	private int cycle;
@@ -82,6 +82,7 @@ public class RCLapTrackerPlugin extends Plugin
 
 		hasCrafted = getBooleanConfig(RCLapTrackerConfig.HASCRAFTED_KEY);
 		isMidRun = getBooleanConfig(RCLapTrackerConfig.ISMIDRUN_KEY);
+		counterBox = null;
 
 		updateInfoBox();
 	}
@@ -103,8 +104,7 @@ public class RCLapTrackerPlugin extends Plugin
 		setConfig(RCLapTrackerConfig.HASCRAFTED_KEY, hasCrafted);
 		setConfig(RCLapTrackerConfig.ISMIDRUN_KEY, isMidRun);
 
-		infoBoxManager.removeInfoBox(counterBox);
-		counterBox = null;
+		removeInfobox();
 	}
 
 	private void removeInfobox()
@@ -117,10 +117,14 @@ public class RCLapTrackerPlugin extends Plugin
 
 	private void updateInfoBox()
 	{
-		removeInfobox();
-		final BufferedImage image = itemManager.getImage(ItemID.WRATH_RUNE, 1, false);
-		counterBox = new Counter(image, this, cycle);
-		infoBoxManager.addInfoBox(counterBox);
+		if (counterBox == null)
+		{
+			final BufferedImage image = itemManager.getImage(ItemID.WRATH_RUNE, 1, false);
+			counterBox = new jwowWriteableCounter(image, this, cycle);
+			infoBoxManager.addInfoBox(counterBox);
+		}
+
+		counterBox.count = cycle;
 	}
 
 	@Subscribe
